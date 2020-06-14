@@ -6,10 +6,10 @@ import math
 from tqdm import tqdm
 
 from distutils.version import LooseVersion
-import keras
-import keras.backend as K
-from keras.layers import Input, Conv3D, MaxPooling3D, UpSampling3D, Add, Concatenate
-from keras.models import Model
+from tensorflow import keras
+import tensorflow.keras.backend as K
+from tensorflow.keras.layers import Input, Conv3D, MaxPooling3D, UpSampling3D, Add, Concatenate
+from tensorflow.keras.models import Model
 
 from csbdeep.models import BaseConfig
 from csbdeep.internals.blocks import conv_block3, unet_block, resnet_block

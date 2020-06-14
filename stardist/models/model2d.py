@@ -6,10 +6,11 @@ import math
 from tqdm import tqdm
 
 from distutils.version import LooseVersion
-import keras
-import keras.backend as K
-from keras.layers import Input, Conv2D, MaxPooling2D
-from keras.models import Model
+import tensorflow as tf
+from tensorflow import keras
+import tensorflow.keras.backend as K
+from tensorflow.keras.layers import Input, Conv2D, MaxPooling2D
+from tensorflow.keras.models import Model
 
 from csbdeep.models import BaseConfig
 from csbdeep.internals.blocks import unet_block
@@ -362,9 +363,14 @@ class StarDist2D(StarDistBase):
         for i,k in enumerate(ids):
             (Xv[i],Mv[i]),(Pv[i],Dv[i]) = data_val[k]
         Xv, Mv, Pv, Dv = np.concatenate(Xv,axis=0), np.concatenate(Mv,axis=0), np.concatenate(Pv,axis=0), np.concatenate(Dv,axis=0)
-        data_val = [[Xv,Mv],[Pv,Dv]]
+        # NOTE: keras wants tuple of (x_val, y_val)
+        # it will crash, when list [x_val, y_val] is supplied
+        data_val = ([Xv,Mv],[Pv,Dv])
 
-        data_train = StarDistData2D(X, Y, batch_size=self.config.train_batch_size, augmenter=augmenter, **data_kwargs)
+        data_train = StarDistData2D(
+            X, Y, batch_size=self.config.train_batch_size,
+            augmenter=augmenter, **data_kwargs
+        )
 
         for cb in self.callbacks:
             if isinstance(cb,CARETensorBoard):
@@ -373,9 +379,9 @@ class StarDist2D(StarDistBase):
                 cb.output_slices = [[slice(None)]*4,[slice(None)]*4]
                 cb.output_slices[1][1+axes_dict(self.config.axes)['C']] = slice(0,(self.config.n_rays//_n)*_n,self.config.n_rays//_n)
 
-        history = self.keras_model.fit_generator(generator=data_train, validation_data=data_val,
-                                                 epochs=epochs, steps_per_epoch=steps_per_epoch,
-                                                 callbacks=self.callbacks, verbose=1)
+        history = self.keras_model.fit(data_train, validation_data=data_val,
+                                       epochs=epochs, steps_per_epoch=steps_per_epoch,
+                                       callbacks=self.callbacks, verbose=1)
         self._training_finished()
 
         return history

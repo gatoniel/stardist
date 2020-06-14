@@ -8,10 +8,10 @@ from tqdm import tqdm
 from collections import namedtuple
 from pathlib import Path
 
-import keras.backend as K
-from keras.utils import Sequence
-from keras.optimizers import Adam
-from keras.callbacks import ReduceLROnPlateau, TensorBoard
+import tensorflow.keras.backend as K
+from tensorflow.keras.utils import Sequence
+from tensorflow.keras.optimizers import Adam
+from tensorflow.keras.callbacks import ReduceLROnPlateau, TensorBoard
 from csbdeep.models.base_model import BaseModel, suppress_without_basedir
 from csbdeep.utils.tf import CARETensorBoard, export_SavedModel
 from csbdeep.utils import _raise, backend_channels_last, axes_check_and_normalize, axes_dict, load_json, save_json
@@ -531,13 +531,13 @@ class StarDistBase(BaseModel):
 
     @suppress_without_basedir(warn=True)
     def export_TF(self, fname=None, single_output=True, upsample_grid=True):
-        """export model to tensorflow SavedModel format that can be used e.g. 
-        in the Fiji plugin 
-        
+        """export model to tensorflow SavedModel format that can be used e.g.
+        in the Fiji plugin
+
         Parameters
         ----------
         fname : str
-            Path of the zip file to store the model 
+            Path of the zip file to store the model
             If None, the default path "<modeldir>/TF_SavedModel.zip" is used
         single_output: bool
             If set, concatenates the two model outputs into a single output (note: this is currently mandatory for further use in Fiji)
